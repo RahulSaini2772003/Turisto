@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Compare Ola and Uber prices</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      function comparePrices() {
+        var startLocation = $('#startLocation').val();
+        var endLocation = $('#endLocation').val();
+
+        // Call the Ola API to retrieve pricing information
+        $.getJSON('https://api.ola.com/v1/pricing?pickup_lat=' + startLocation.lat + '&pickup_lng=' + startLocation.lng + '&drop_lat=' + endLocation.lat + '&drop_lng=' + endLocation.lng + '&category=sedan&auth_token=YOUR_OLA_API_KEY', function(data) {
+          var olaPrice = data.prices[0].amount;
+
+          // Call the Uber API to retrieve pricing information
+          $.getJSON('https://api.uber.com/v1.2/estimates/price?start_latitude=' + startLocation.lat + '&start_longitude=' + startLocation.lng + '&end_latitude=' + endLocation.lat + '&end_longitude=' + endLocation.lng + '&product_id=uberX&server_token=YOUR_UBER_API_KEY', function(data) {
+            var uberPrice = data.prices[0].estimate;
+
+            // Compare the prices and display the minimum
+            if (olaPrice < uberPrice) {
+              $('#minPrice').text('Ola is cheaper. Price: ' + olaPrice);
+            } else {
+              $('#minPrice').text('Uber is cheaper. Price: ' + uberPrice);
+            }
+          });
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <form>
+      <label for="startLocation">Starting location:</label>
+      <input type="text" id="startLocation" name="startLocation"><br><br>
+      <label for="endLocation">Destination:</label>
+      <input type="text" id="endLocation" name="endLocation"><br><br>
+      <button type="button" onclick="comparePrices()">Compare prices</button>
+    </form>
+    <br>
+    <div id="minPrice"></div>
+  </body>
+</html>
